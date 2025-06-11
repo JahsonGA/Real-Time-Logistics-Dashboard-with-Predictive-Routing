@@ -31,6 +31,7 @@ Logistics managers at a delivery company use the dashboard to:
 | Historical data       | View past routes, delays, and performance metrics                |
 
 <h1><bold>Architecture Planning</bold></h1>
+
 | Layer           | Tools                                                                 |
 | --------------- | --------------------------------------------------------------------- |
 | Frontend        | React, Leaflet.js or Mapbox GL JS for maps, Recharts/D3.js for graphs |
