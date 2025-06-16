@@ -1,0 +1,7 @@
+Started work on structure of the app and set up for API_KEY. The plan for the backend is:
+[ MTA API ] --> [ Your Backend ] --> [ WebSocket Server ] --> [ React Dashboard ]
+
+The backend will be responsible for the following features
+-   Pulls data every 15–30 seconds using setInterval or a scheduled job
+-   Parses bus locations (lat/lng, vehicle ref, timestamp, status)
+-   Broadcasts clean JSON via WebSocket to all connected clients
