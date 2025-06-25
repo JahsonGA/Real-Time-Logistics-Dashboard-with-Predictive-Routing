@@ -28,23 +28,40 @@ async function fetchBusData(routeId) {
 
     // navigate safely to the array of vehicle activities
     const vehicleActivity = data?.Siri?.ServiceDelivery?.VehicleMonitoringDelivery?.[0]?.VehicleActivity;
-
+  
     // check if any vehicles were returned
     if (!vehicleActivity || vehicleActivity.length === 0) {
       console.log(`No vehicles found for route ${routeId}.`);
       return;
     }
 
-    // inside fetchBusData:
+    logger.info(`Total buses from MTA: ${vehicleActivity.length}`);
+
+    // clean fetchBusData:
     const cleanedBuses = parseBusData(vehicleActivity);
     logger.info(`Filtered ${cleanedBuses.length} valid buses`);
 
     // show all bus data
-    cleanedBuses.forEach(entry => {
+    /*cleanedBuses.forEach(entry => {
       
       logger.info(JSON.stringify(entry, null, 2));
 
-    });
+    });*/
+
+    // grouped by direction
+    // 0 inbound
+    // 1 outbound
+    // else unknown
+    const groupedBuses = parseBusData(vehicleActivity);
+
+    logger.info(`Inbound buses: ${groupedBuses.direction0.length}`);
+    groupedBuses.direction0.forEach(bus => logger.info(JSON.stringify(bus)));
+
+    logger.info(`Outbound buses: ${groupedBuses.direction1.length}`);
+    groupedBuses.direction1.forEach(bus => logger.info(JSON.stringify(bus)));
+
+    logger.info(`Unknown direction: ${groupedBuses.unknown.length}`);
+    groupedBuses.unknown.forEach(bus => logger.info(JSON.stringify(bus)));
 
     // full bus info
     //! remove before using in full backend

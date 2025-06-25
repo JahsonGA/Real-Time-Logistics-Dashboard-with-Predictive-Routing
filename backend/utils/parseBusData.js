@@ -1,24 +1,42 @@
 // JSON parsing, logging helpers
-function parseBusData(vehicleActivity) {
-  return vehicleActivity
-    .filter(entry => {
-      // remove if GPS is missing or corrupted
-      const loc = entry?.MonitoredVehicleJourney?.VehicleLocation;
 
-      // returns 1 if long and lat exist and are valid or 0 if they do not
-      return loc?.Latitude && loc?.Longitude;
-    })
-    .map(entry => {
-      const bus = entry.MonitoredVehicleJourney;
-      return {
-        id: bus.VehicleRef,
-        lat: bus.VehicleLocation.Latitude,
-        lng: bus.VehicleLocation.Longitude,
-        direction: bus.DirectionRef,
-        destination: bus.DestinationName,
-        timestamp: entry.RecordedAtTime
-      };
-    });
+const isValidLocation = require('./isValidLocation');
+
+function parseBusData(vehicleActivity) {
+  const grouped = {
+    direction0: [],
+    direction1: [],
+    unknown: []
+  };
+
+  vehicleActivity.forEach(entry => {
+    const loc = entry?.MonitoredVehicleJourney?.VehicleLocation;
+    const valid = isValidLocation(loc);
+    if (!valid) {
+      console.warn("Invalid bus location skipped:", JSON.stringify(loc, null, 2));
+      return;
+    }
+
+    const bus = entry.MonitoredVehicleJourney;
+    const busData = {
+      id: bus.VehicleRef,
+      lat: bus.VehicleLocation.Latitude,
+      lng: bus.VehicleLocation.Longitude,
+      direction: bus.DirectionRef,
+      destination: bus.DestinationName,
+      timestamp: entry.RecordedAtTime
+    };
+
+    if (bus.DirectionRef === "0") {
+      grouped.direction0.push(busData);
+    } else if (bus.DirectionRef === "1") {
+      grouped.direction1.push(busData);
+    } else {
+      grouped.unknown.push(busData);
+    }
+  });
+
+  return grouped;
 }
 
 module.exports = parseBusData;
