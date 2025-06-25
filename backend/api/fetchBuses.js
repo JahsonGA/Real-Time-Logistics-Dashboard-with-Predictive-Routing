@@ -9,6 +9,9 @@ require('dotenv').config();
 // logger
 const logger = require('../logger');
 
+// parse data
+const parseBusData = require('../utils/parseBusData');
+
 // GET request
 async function fetchBusData(routeId) {
   try {
@@ -32,21 +35,16 @@ async function fetchBusData(routeId) {
       return;
     }
 
-    // show all bus data
-    vehicleActivity.forEach(entry => {
-      // show first bus
-      const busEntry = vehicleActivity; // full VehicleActivity object
-      const sampleBus = entry.MonitoredVehicleJourney;
+    // inside fetchBusData:
+    const cleanedBuses = parseBusData(vehicleActivity);
+    logger.info(`Filtered ${cleanedBuses.length} valid buses`);
 
-      logger.info(JSON.stringify({
-        id: sampleBus.VehicleRef,
-        lat: sampleBus.VehicleLocation?.Latitude,
-        lng: sampleBus.VehicleLocation?.Longitude,
-        destination: sampleBus.DestinationName,
-        timestamp: entry.RecordedAtTime // display time which in one layer above sampleBus
-        },null, 2));  // no changes to data but add indents for neatness
-        
-      });
+    // show all bus data
+    cleanedBuses.forEach(entry => {
+      
+      logger.info(JSON.stringify(entry, null, 2));
+
+    });
 
     // full bus info
     //! remove before using in full backend
