@@ -60,7 +60,7 @@ async function fetchBusData(routeId) {
     logger.info(`Outbound buses: ${groupedBuses.direction1.length}`);
     groupedBuses.direction1.forEach(bus => logger.info(JSON.stringify(bus)));
 
-    logger.info(`Unknown direction: ${groupedBuses.unknown.length}`);
+    logger.info(`Unknown direction buses: ${groupedBuses.unknown.length}`);
     groupedBuses.unknown.forEach(bus => logger.info(JSON.stringify(bus)));
 
     // full bus info

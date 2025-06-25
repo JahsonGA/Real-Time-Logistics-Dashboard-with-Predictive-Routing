@@ -27,9 +27,11 @@ function parseBusData(vehicleActivity) {
       timestamp: entry.RecordedAtTime
     };
 
-    if (bus.DirectionRef === "0") {
+    const direction = String(bus.DirectionRef);
+
+    if (direction === "0") {
       grouped.direction0.push(busData);
-    } else if (bus.DirectionRef === "1") {
+    } else if (direction === "1") {
       grouped.direction1.push(busData);
     } else {
       grouped.unknown.push(busData);
