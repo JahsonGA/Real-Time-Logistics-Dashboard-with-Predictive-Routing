@@ -6,6 +6,9 @@ const axios = require('axios');
 // load API key
 require('dotenv').config();
 
+// logger
+const logger = require('../logger');
+
 // GET request
 async function fetchBusData(routeId) {
   try {
@@ -29,20 +32,21 @@ async function fetchBusData(routeId) {
       return;
     }
 
-    // log how many vehicles were found
-    console.log(`Found ${vehicleActivity.length} vehicles for route ${routeId}.`);
+    // show all bus data
+    vehicleActivity.forEach(entry => {
+      // show first bus
+      const busEntry = vehicleActivity; // full VehicleActivity object
+      const sampleBus = entry.MonitoredVehicleJourney;
 
-    // show first bus
-    const busEntry = vehicleActivity[0]; // full VehicleActivity object
-    const sampleBus = busEntry.MonitoredVehicleJourney;
-
-    console.log({
-    id: sampleBus.VehicleRef,
-    lat: sampleBus.VehicleLocation?.Latitude,
-    lng: sampleBus.VehicleLocation?.Longitude,
-    destination: sampleBus.DestinationName,
-    timestamp: busEntry.RecordedAtTime // display time which in one layer above sampleBus
-    });
+      logger.info(JSON.stringify({
+        id: sampleBus.VehicleRef,
+        lat: sampleBus.VehicleLocation?.Latitude,
+        lng: sampleBus.VehicleLocation?.Longitude,
+        destination: sampleBus.DestinationName,
+        timestamp: entry.RecordedAtTime // display time which in one layer above sampleBus
+        },null, 2));  // no changes to data but add indents for neatness
+        
+      });
 
     // full bus info
     //! remove before using in full backend
@@ -50,9 +54,16 @@ async function fetchBusData(routeId) {
 
   } catch (error) {
     // catch and report any request or parsing errors
-    console.error("Error fetching bus data:", error.message);
+    logger.error("Error fetching bus data:", error.message);
   }
 }
 
-// call the function for the B63 route
-fetchBusData("MTA NYCT_B63");
+setInterval(()=>{
+  // call the function for the B63 route
+  fetchBusData("MTA NYCT_B63");
+  const now = new Date().toLocaleString();
+
+  // log data
+  console.log(`[${now}] Poll executed`);
+}, 5000);
+

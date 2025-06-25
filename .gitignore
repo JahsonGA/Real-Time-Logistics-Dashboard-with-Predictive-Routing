@@ -1,3 +1,5 @@
 .env
 devlog/
 node_modules/
+# log files
+*.log
