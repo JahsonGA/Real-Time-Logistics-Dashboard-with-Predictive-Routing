@@ -1,33 +1,34 @@
 require('dotenv').config();
-const axios = require('axios');
 
-async function testShippo() {
-  const apiKey = process.env.GOSHIPPO_API_KEY;
-  if (!apiKey) {
-    console.error("❌ Missing GOSHIPPO_API_KEY in .env");
-    process.exit(1);
+const fetchShipments = require('./api/fetchShipment');
+const parseShipData = require('./utils/parseShipData');
+const { loggerNorm } = require('./logger');
+
+async function run() {
+  const raw = await fetchShipments();
+  const grouped = parseShipData(raw);
+
+  // rollup counts
+  const counts = {
+    TRANSIT:   grouped.TRANSIT.length,
+    DELIVERED: grouped.DELIVERED.length,
+    EXCEPTION: grouped.EXCEPTION.length,
+    RETURNED:  grouped.RETURNED.length,
+    unknown:   grouped.unknown.length,
+  };
+  console.log('Counts:', counts);
+  loggerNorm.info({ event: 'shippo_group_counts', counts });
+
+  // write each normalized pack (JSON) to file
+  for (const bucket of Object.values(grouped)) {
+    for (const pack of bucket) {
+      loggerNorm.info(pack); // pass object; file transport is json()
+    }
   }
 
-  try {
-    // Replace with a known carrier + tracking number for testing
-    const carrier = "shippo";
-    const trackingNumber = "SHIPPO_TRANSIT";
-
-    const response = await axios.get(
-      `https://api.goshippo.com/tracks/${carrier}/${trackingNumber}`,
-      {
-        headers: {
-          Authorization: `ShippoToken ${apiKey}`
-        }
-      }
-    );
-
-    console.log("Shippo API connected successfully!");
-    console.log(JSON.stringify(response.data, null, 2));
-
-  } catch (err) {
-    console.error("Error fetching Shippo data:", err.response?.data || err.message);
-  }
+  console.log('Done. Check backend/logs/shippo_normalized.json');
 }
 
-testShippo();
+run().catch(err => {
+  console.error('Test failed:', err);
+});

@@ -146,6 +146,15 @@ function ParseShippoData(items) {
       case "RETURNED":
         grouped.RETURNED.push(pack);
         break;
+      case 'PRE_TRANSIT':
+        // choose one:
+        // grouped.TRANSIT.push(pack);             // if you want to fold pre-transit into transit
+        // or make a separate bucket if you prefer:
+        grouped.unknown.push(pack);                // temporary if you don't want a new bucket
+        break;
+      case 'FAILURE':
+        grouped.EXCEPTION.push(pack);
+        break;
       default:
         grouped.unknown.push(pack);
         break;

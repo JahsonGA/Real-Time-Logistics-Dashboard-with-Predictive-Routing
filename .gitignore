@@ -2,4 +2,5 @@
 devlog/
 node_modules/
 # log files
+logs/
 *.log
